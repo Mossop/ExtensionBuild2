@@ -76,6 +76,15 @@
 		</copy>
 	</target>
 	
+	<target name="components">
+		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components">
+			<mapper type="glob" from="*.idl" to="*.xpt"/>
+			<fileset includes="*.idl"/>
+			<arg line="-m typelib -w -v"/>
+			<arg line="${xpidl.includes}"/>
+		</apply>
+	</target>
+	
 	<target name="copy" depends="init">
 		<copy todir="${builddir}">
 			<fileset dir="${basedir}">
@@ -91,7 +100,7 @@
 		<delete dir="${builddir}/build"/>
 	</target>
 	
-	<target name="package" depends="init,copy,preprocess">
+	<target name="package" depends="init,copy,preprocess,components">
 		<zip basedir="${builddir}" destfile="${outputdir}/${extension.name}.xpi"/>
 	</target>
 	
