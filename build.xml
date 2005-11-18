@@ -58,6 +58,7 @@
 	
 	<target name="init" depends="loadprops,development,release">
 		<mkdir dir="${builddir}"/>
+		<available property="hascomponents" file="${basedir}/components"/>
 	</target>
 	
 	<target name="clean" depends="init">
@@ -76,10 +77,10 @@
 		</copy>
 	</target>
 	
-	<target name="components">
+	<target name="components" if="hascomponents">
 		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components">
 			<mapper type="glob" from="*.idl" to="*.xpt"/>
-			<fileset includes="*.idl"/>
+			<fileset dir="${basedir}/components" includes="*.idl"/>
 			<arg line="-m typelib -w -v"/>
 			<arg line="${xpidl.includes}"/>
 		</apply>
