@@ -42,6 +42,10 @@
 
 <project name="ExtensionBuild" default="package" basedir="../">
 
+	<property name="mozillasrc" value="${basedir}/../../mozilla/mozilla"/>
+
+	<property name="xpidl.includes" value="-I ${mozillasrc}/xpcom/base -I ${mozillasrc}/uriloader/base -I ${mozillasrc}/netwerk/base/public -I ${mozillasrc}/xpcom/io"/>
+
 	<target name="loadprops">
 		<property file="${basedir}/extension.properties" prefix="extension"/>
 		<property name="builddir" value="${basedir}/bin"/>
@@ -78,11 +82,12 @@
 	</target>
 	
 	<target name="components" if="hascomponents">
-		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components">
+		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components" failonerror="true">
 			<mapper type="glob" from="*.idl" to="*.xpt"/>
 			<fileset dir="${basedir}/components" includes="*.idl"/>
 			<arg line="-m typelib -w -v"/>
-			<arg line="${xpidl.includes}"/>
+			<arg line="${xpidl.includes} -e"/>
+			<targetfile/>
 		</apply>
 	</target>
 	
