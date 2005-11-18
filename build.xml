@@ -44,7 +44,7 @@
 
 	<property name="mozillasrc" value="${basedir}/../../mozilla/mozilla"/>
 
-	<property name="xpidl.includes" value="-I ${mozillasrc}/xpcom/base:${mozillasrc}/uriloader/base:${mozillasrc}/netwerk/base/public:${mozillasrc}/xpcom/io"/>
+	<property name="xpidl.includes" value="-I ${mozillasrc}/xpcom/base -I ${mozillasrc}/uriloader/base -I ${mozillasrc}/netwerk/base/public -I ${mozillasrc}/xpcom/io"/>
 
 	<target name="loadprops">
 		<property file="${basedir}/extension.properties" prefix="extension"/>
