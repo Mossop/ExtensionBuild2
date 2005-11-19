@@ -53,7 +53,7 @@
 	</target>
 	
 	<target name="development" if="extension.revision">
-		<property name="extension.fullversion" value="${extension.version}.r${extension.revision}"/>
+		<property name="extension.fullversion" value="${extension.version}.rev${extension.revision}"/>
 	</target>
 	
 	<target name="release" unless="extension.revision">
