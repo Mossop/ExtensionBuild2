@@ -11,7 +11,7 @@
    - for the specific language governing rights and limitations under the
    - License.
    -
-   - The Original Code is Extension Build Script.
+   - The Original Code is Universal Extension Build Script.
    -
    - The Initial Developer of the Original Code is
    -     Dave Townsend <dave.townsend@blueprintit.co.uk>.
@@ -92,21 +92,25 @@
 	</target>
 	
 	<target name="copy" depends="init">
-		<copy todir="${builddir}">
+		<copy todir="${builddir}" includeEmptyDirs="false">
 			<fileset dir="${basedir}">
+				<exclude name="extension.properties"/>
+				<exclude name="build/*"/>
+				<exclude name="bin/*"/>
+				<exclude name="**/*.in"/>
 				<exclude name="components/*.idl"/>
 				<exclude name="*.xpi"/>
-				<exclude name="extension.properties"/>
-				<exclude name=".*"/>
-				<exclude name="**/*.in"/>
 				<exclude name="**/*.pspimage"/>
+				<exclude name=".*"/>
+ 				<exclude name=".externalToolBuilders/*"/>
 			</fileset>
 		</copy>
-		<delete dir="${builddir}/bin"/>
-		<delete dir="${builddir}/build"/>
 	</target>
 	
-	<target name="package" depends="init,copy,preprocess,components">
+	<target name="compile" depends="init,copy,preprocess,components">
+	</target>
+	
+	<target name="package" depends="init,compile">
 		<zip basedir="${builddir}" destfile="${outputdir}/${extension.name}.xpi"/>
 	</target>
 	
