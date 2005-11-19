@@ -71,13 +71,15 @@
 	</target>
 	
 	<target name="preprocess" depends="init">
-		<filter token="id" value="${extension.guid}"/>
-		<filter token="version" value="${extension.fullversion}"/>
-		<copy todir="${builddir}" filtering="true" overwrite="true">
+		<copy todir="${builddir}" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="**/*.in"/>
 			</fileset>
 			<mapper type="glob" from="*.in" to="*"/>
+		  <filterset>
+				<filter token="id" value="${extension.guid}"/>
+				<filter token="version" value="${extension.fullversion}"/>
+	  	</filterset>
 		</copy>
 	</target>
 	
