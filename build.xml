@@ -94,11 +94,11 @@
 	</target>
 	
 	<target name="copy" depends="init">
-		<copy todir="${builddir}" includeEmptyDirs="false">
+		<copy todir="${builddir}">
 			<fileset dir="${basedir}">
 				<exclude name="extension.properties"/>
-				<exclude name="build/**/*"/>
-				<exclude name="bin/**/*"/>
+				<exclude name="build/*"/>
+				<exclude name="bin/**"/>
 				<exclude name="**/*.in"/>
 				<exclude name="components/*.idl"/>
 				<exclude name="*.xpi"/>
