@@ -113,6 +113,7 @@
 	</target>
 	
 	<target name="revision-package" depends="init,compile,package">
+		<delete file="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
 		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
 	</target>
 	
