@@ -112,6 +112,10 @@
 	<target name="compile" depends="init,copy,preprocess,components">
 	</target>
 	
+	<target name="revision-package" depends="init,compile,package">
+		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}.rev${extension.revision}.xpi"/>
+	</target>
+	
 	<target name="package" depends="init,compile">
 		<zip basedir="${builddir}" destfile="${outputdir}/${extension.name}.xpi"/>
 	</target>
