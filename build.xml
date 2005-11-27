@@ -113,7 +113,7 @@
 	</target>
 	
 	<target name="revision-package" depends="init,compile,package">
-		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}.rev${extension.revision}.xpi"/>
+		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
 	</target>
 	
 	<target name="package" depends="init,compile">
