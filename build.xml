@@ -103,6 +103,7 @@
 				<exclude name="components/*.idl"/>
 				<exclude name="*.xpi"/>
 				<exclude name="**/*.pspimage"/>
+				<exclude name="**/Thumbs.db"/>
 				<exclude name=".*"/>
  				<exclude name=".externalToolBuilders/*"/>
 			</fileset>
