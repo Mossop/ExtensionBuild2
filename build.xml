@@ -108,7 +108,7 @@
 		<copy todir="${builddir}">
 			<fileset dir="${basedir}">
 				<exclude name="extension.properties"/>
-				<exclude name="build/*"/>
+				<exclude name="build/**"/>
 				<exclude name="bin/**"/>
 				<exclude name="**/*.in"/>
 				<exclude name="components/*.idl"/>
