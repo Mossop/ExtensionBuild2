@@ -50,24 +50,35 @@
 		<property file="${basedir}/extension.properties" prefix="extension"/>
 		<property name="builddir" value="${basedir}/bin"/>
 		<property name="outputdir" value="${basedir}"/>
+		<property name="releasedir" value="${basedir}"/>
 	</target>
 	
 	<target name="development" if="extension.revision">
 		<property name="extension.fullversion" value="${extension.version}.rev${extension.revision}"/>
+		<property name="targetdir" value="${outputdir}"/>
+	  <property name="packagename" value="${extension.name}"/>
 	</target>
 	
-	<target name="release" unless="extension.revision">
+	<target name="release" if="release">
 		<property name="extension.fullversion" value="${extension.version}"/>
+		<property name="targetdir" value="${releasedir}"/>
+	  <property name="packagename" value="${extension.name}-${extension.version}"/>
 	</target>
 	
-	<target name="init" depends="loadprops,development,release">
+	<target name="standard">
+		<property name="extension.fullversion" value="${extension.version}"/>
+		<property name="targetdir" value="${outputdir}"/>
+	  <property name="packagename" value="${extension.name}"/>
+	</target>
+	
+	<target name="init" depends="loadprops,development,release,standard">
 		<mkdir dir="${builddir}"/>
 		<available property="hascomponents" file="${basedir}/components"/>
 	</target>
 	
 	<target name="clean" depends="init">
 		<delete dir="${builddir}"/>
-		<delete file="${outputdir}/${extension.name}.xpi"/>
+		<delete file="${targetdir}/${packagename}.xpi"/>
 	</target>
 	
 	<target name="preprocess" depends="init">
@@ -115,11 +126,11 @@
 	
 	<target name="revision-package" depends="init,compile,package">
 		<delete file="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
-		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
+		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}-${extension.version}.rev${extension.revision}.xpi"/>
 	</target>
 	
 	<target name="package" depends="init,compile">
-		<zip basedir="${builddir}" destfile="${outputdir}/${extension.name}.xpi"/>
+		<zip basedir="${builddir}" destfile="${targetdir}/${packagename}.xpi"/>
 	</target>
 	
 </project>
