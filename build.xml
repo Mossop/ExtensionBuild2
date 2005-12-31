@@ -61,7 +61,7 @@
 	
 	<target name="release" if="release">
 		<property name="extension.fullversion" value="${extension.version}"/>
-		<property name="targetdir" value="${releasedir}"/>
+		<property name="targetdir" value="${releasedir}/${extension.name}"/>
 	  <property name="packagename" value="${extension.name}-${extension.version}"/>
 	</target>
 	
