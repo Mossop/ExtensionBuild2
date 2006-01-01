@@ -46,42 +46,53 @@
 
 	<property name="xpidl.includes" value="-I ${mozillasrc}/xpcom/base -I ${mozillasrc}/uriloader/base -I ${mozillasrc}/netwerk/base/public -I ${mozillasrc}/xpcom/io"/>
 
-	<target name="loadprops">
-		<property file="${basedir}/extension.properties" prefix="extension"/>
-		<property name="builddir" value="${basedir}/bin"/>
+	<target name="init"
+	  description="Initialises all propertys to their correct values.">
+		
+	  <!-- Load the extension propertys -->
+	  <property file="${basedir}/extension.properties" prefix="extension"/>
+
+	  <!-- Set suitable defaults in case there was no settings -->
+	  <property name="builddir" value="${basedir}/bin"/>
 		<property name="outputdir" value="${basedir}"/>
 		<property name="releasedir" value="${basedir}"/>
-	</target>
-	
-	<target name="development" if="extension.revision">
-		<property name="extension.fullversion" value="${extension.version}.rev${extension.revision}"/>
-		<property name="targetdir" value="${outputdir}"/>
-	  <property name="packagename" value="${extension.name}"/>
-	</target>
-	
-	<target name="release" if="release">
-		<property name="extension.fullversion" value="${extension.version}"/>
-		<property name="targetdir" value="${releasedir}/${extension.name}"/>
-	  <property name="packagename" value="${extension.name}-${extension.version}"/>
-	</target>
-	
-	<target name="standard">
-		<property name="extension.fullversion" value="${extension.version}"/>
-		<property name="targetdir" value="${outputdir}"/>
-	  <property name="packagename" value="${extension.name}"/>
-	</target>
-	
-	<target name="init" depends="loadprops,development,release,standard">
-		<mkdir dir="${builddir}"/>
+	  
+	  <!-- Set up the release, revision and standard builds -->
+	  <condition property="extension.fullversion" value="${extension.version}.rev${extension.revision}" else="${extension.version}">
+			<isset property="extension.revision"/>
+	  </condition>
+	  
+	  <!-- This is the directory to place the completed package into -->
+	  <condition property="targetdir" value="${releasedir}/${extension.name}" else="${outputdir}">
+	  	<isset property="release"/>
+	  </condition>
+	  
+	  <!-- Check if this is a branch build -->
+	  <condition property="branchname" value="${extension.name}-${extension.branch}" else="${extension.name}">
+	  	<isset property="extension.branch"/>
+	  </condition>
+	  
+	  <!-- This is the final name for the xpi package -->
+	  <condition property="packagename" value="${branchname}-${extension.version}" else="${branchname}">
+	  	<isset property="release"/>
+	  </condition>
+
+	  <!-- Create the build directory and check if there are any components -->
+	  <mkdir dir="${builddir}"/>
 		<available property="hascomponents" file="${basedir}/components"/>
+	  
 	</target>
 	
-	<target name="clean" depends="init">
-		<delete dir="${builddir}"/>
+	<target name="clean" depends="init"
+	  description="Cleans the build directory and output package">
+
+	  <delete dir="${builddir}"/>
 		<delete file="${targetdir}/${packagename}.xpi"/>
 	</target>
 	
-	<target name="preprocess" depends="init">
+	<target name="preprocess" depends="init"
+	  description="Preprocesses any necessary input files">
+	  
 		<copy todir="${builddir}" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="**/*.in"/>
@@ -94,7 +105,9 @@
 		</copy>
 	</target>
 	
-	<target name="components" if="hascomponents">
+	<target name="components" if="hascomponents" depends="init"
+	  description="Compiles any idl files to xpt">
+  
 		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components" failonerror="true">
 			<mapper type="glob" from="*.idl" to="*.xpt"/>
 			<fileset dir="${basedir}/components" includes="*.idl"/>
@@ -104,32 +117,40 @@
 		</apply>
 	</target>
 	
-	<target name="copy" depends="init">
+	<target name="copy" depends="init"
+	  description="Copies all standard files to the build directory">
+	  
 		<copy todir="${builddir}">
 			<fileset dir="${basedir}">
-				<exclude name="extension.properties"/>
-				<exclude name="build/**"/>
-				<exclude name="bin/**"/>
-				<exclude name="**/*.in"/>
-				<exclude name="components/*.idl"/>
-				<exclude name="*.xpi"/>
-				<exclude name="**/*.pspimage"/>
-				<exclude name="**/Thumbs.db"/>
-				<exclude name=".*"/>
- 				<exclude name=".externalToolBuilders/*"/>
+				<exclude name="extension.properties"/>      <!-- Don't want the properties in the build -->
+				<exclude name="build/**"/>                  <!-- Don't want the build scripts either -->
+				<exclude name="bin/**"/>                    <!-- Don't copy the build into itself -->
+				<exclude name="**/*.in"/>                   <!-- The preprocessor will copy these across -->
+				<exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
+				<exclude name="*.xpi"/>                     <!-- Shouldn't package extensions within extensions -->
+				<exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
+				<exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
+				<exclude name=".*"/>                        <!-- No unix hidden files -->
+ 				<exclude name=".externalToolBuilders/*"/>   <!-- Eclipse specific files -->
 			</fileset>
 		</copy>
 	</target>
 	
-	<target name="compile" depends="init,copy,preprocess,components">
+	<target name="compile" depends="init,copy,preprocess,components"
+	  description="Dummy task that performs everything necessary to make the build directory a working extension.">
+	  
 	</target>
 	
-	<target name="revision-package" depends="init,compile,package">
-		<delete file="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
-		<zip basedir="${builddir}" destfile="${revisiondir}/${extension.name}.${extension.version}.rev${extension.revision}.xpi"/>
+	<target name="revision-package" depends="init,compile,package"
+	  description="Creates a revision stamped package of the extension.">
+	    
+		<delete file="${revisiondir}/${packagename}-${extension.version}.rev${extension.revision}.xpi"/>
+		<zip basedir="${builddir}" destfile="${revisiondir}/${packagename}-${extension.version}.rev${extension.revision}.xpi"/>
 	</target>
 	
-	<target name="package" depends="init,compile">
+	<target name="package" depends="init,compile"
+	  description="Packages the extension into an xpi file.">
+	  
 		<zip basedir="${builddir}" destfile="${targetdir}/${packagename}.xpi"/>
 	</target>
 	
