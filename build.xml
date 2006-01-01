@@ -55,25 +55,14 @@
 	  <!-- Set suitable defaults in case there was no settings -->
 	  <property name="builddir" value="${basedir}/bin"/>
 		<property name="outputdir" value="${basedir}"/>
-		<property name="releasedir" value="${basedir}"/>
 	  
-	  <!-- Set up the release, revision and standard builds -->
-	  <condition property="extension.fullversion" value="${extension.version}.rev${extension.revision}" else="${extension.version}">
+	  <!-- If a revision is specified then add that to the extension version -->
+	  <condition property="extension.fullversion" value="${extension.version}.${extension.revision}" else="${extension.version}">
 			<isset property="extension.revision"/>
 	  </condition>
 	  
-	  <!-- This is the directory to place the completed package into -->
-	  <condition property="targetdir" value="${releasedir}/${extension.name}" else="${outputdir}">
-	  	<isset property="release"/>
-	  </condition>
-	  
-	  <!-- Check if this is a branch build -->
-	  <condition property="branchname" value="${extension.name}-${extension.branch}" else="${extension.name}">
-	  	<isset property="extension.branch"/>
-	  </condition>
-	  
-	  <!-- This is the final name for the xpi package -->
-	  <condition property="packagename" value="${branchname}-${extension.version}" else="${branchname}">
+	  <!-- Release builds have their version in their package name -->
+	  <condition property="packagename" value="${extension.name}-${extension.version}" else="${extension.name}">
 	  	<isset property="release"/>
 	  </condition>
 
@@ -87,7 +76,7 @@
 	  description="Cleans the build directory and output package">
 
 	  <delete dir="${builddir}"/>
-		<delete file="${targetdir}/${packagename}.xpi"/>
+		<delete file="${outputdir}/${packagename}.xpi"/>
 	</target>
 	
 	<target name="preprocess" depends="init"
@@ -141,17 +130,10 @@
 	  
 	</target>
 	
-	<target name="revision-package" depends="init,compile,package"
-	  description="Creates a revision stamped package of the extension.">
-	    
-		<delete file="${revisiondir}/${packagename}-${extension.version}.rev${extension.revision}.xpi"/>
-		<zip basedir="${builddir}" destfile="${revisiondir}/${packagename}-${extension.version}.rev${extension.revision}.xpi"/>
-	</target>
-	
 	<target name="package" depends="init,compile"
 	  description="Packages the extension into an xpi file.">
 	  
-		<zip basedir="${builddir}" destfile="${targetdir}/${packagename}.xpi"/>
+		<zip basedir="${builddir}" destfile="${outputdir}/${packagename}.xpi"/>
 	</target>
 	
 </project>
