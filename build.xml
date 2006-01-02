@@ -15,6 +15,7 @@
    -
    - The Initial Developer of the Original Code is
    -     Dave Townsend <dave.townsend@blueprintit.co.uk>.
+   -
    - Portions created by the Initial Developer are Copyright (C) 2005
    - the Initial Developer. All Rights Reserved.
    -
@@ -46,7 +47,7 @@
 
 	<property name="xpidl.includes" value="-I ${mozillasrc}/xpcom/base -I ${mozillasrc}/uriloader/base -I ${mozillasrc}/netwerk/base/public -I ${mozillasrc}/xpcom/io"/>
 
-	<target name="init"
+	<target name="_init"
 	  description="Initialises all propertys to their correct values.">
 		
 	  <!-- Load the extension propertys -->
@@ -70,16 +71,18 @@
 	  <mkdir dir="${builddir}"/>
 		<available property="hascomponents" file="${basedir}/components"/>
 	  
+	  <!-- Dump out properties so we know the state of a failed build -->
+	  <echoproperties/>
 	</target>
 	
-	<target name="clean" depends="init"
+	<target name="clean" depends="_init"
 	  description="Cleans the build directory and output package">
 
 	  <delete dir="${builddir}"/>
 		<delete file="${outputdir}/${packagename}.xpi"/>
 	</target>
 	
-	<target name="preprocess" depends="init"
+	<target name="_preprocess" depends="_init"
 	  description="Preprocesses any necessary input files">
 	  
 		<copy todir="${builddir}" overwrite="true">
@@ -94,7 +97,7 @@
 		</copy>
 	</target>
 	
-	<target name="components" if="hascomponents" depends="init"
+	<target name="_components" if="hascomponents" depends="_init"
 	  description="Compiles any idl files to xpt">
   
 		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components" failonerror="true">
@@ -106,7 +109,7 @@
 		</apply>
 	</target>
 	
-	<target name="copy" depends="init"
+	<target name="_copy" depends="_init"
 	  description="Copies all standard files to the build directory">
 	  
 		<copy todir="${builddir}">
@@ -125,12 +128,26 @@
 		</copy>
 	</target>
 	
-	<target name="compile" depends="init,copy,preprocess,components"
+  <target name="_buildjar" depends="_init,_copy,_preprocess" if="extension.chromejar"
+    description="Compiles the chrome into a single jar file.">
+    
+    <!-- Assume this dir is clean so zip up everything except the jar file itself. -->
+		<zip basedir="${builddir}/chrome" destfile="${builddir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
+
+ 		<!-- Delete everything except the jar file -->
+    <delete includeemptydirs="true">
+      <fileset dir="${builddir}/chrome">
+        <exclude name="${extension.chromejar}.jar"/>
+      </fileset>
+    </delete>
+  </target>
+  
+	<target name="compile" depends="_init,_copy,_preprocess,_buildjar,_components"
 	  description="Dummy task that performs everything necessary to make the build directory a working extension.">
 	  
 	</target>
 	
-	<target name="package" depends="init,compile"
+	<target name="package" depends="_init,compile"
 	  description="Packages the extension into an xpi file.">
 	  
 		<zip basedir="${builddir}" destfile="${outputdir}/${packagename}.xpi"/>
