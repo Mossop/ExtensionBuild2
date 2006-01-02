@@ -50,7 +50,10 @@
 	<target name="_init"
 	  description="Initialises all propertys to their correct values.">
 		
-	  <!-- Load the extension propertys -->
+	  <!-- Load the basic properties -->
+	  <property file="${properties}"/>
+		
+	  <!-- Load the extension properties -->
 	  <property file="${basedir}/extension.properties" prefix="extension"/>
 
 	  <!-- Set suitable defaults in case there was no settings -->
@@ -151,6 +154,10 @@
 	  description="Packages the extension into an xpi file.">
 	  
 		<zip basedir="${builddir}" destfile="${outputdir}/${packagename}.xpi"/>
+	</target>
+	
+	<target name="clean-package" depends="clean,package"
+	  description="A single target that will clean then build the package. Stops running the init target twice.">
 	</target>
 	
 </project>
