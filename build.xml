@@ -43,9 +43,10 @@
 
 <project name="ExtensionBuild" default="package" basedir="../">
 
-	<property name="mozillasrc" value="${basedir}/../../mozilla/mozilla"/>
+	<property name="mozillasdk" value="${basedir}/../../gecko-sdk"/>
 
-	<property name="xpidl.includes" value="-I ${mozillasrc}/xpcom/base -I ${mozillasrc}/uriloader/base -I ${mozillasrc}/netwerk/base/public -I ${mozillasrc}/xpcom/io"/>
+	<property name="xpidl.bin" value="${mozillasdk}/bin/xpidl"/>
+	<property name="xpidl.includes" value="-I ${mozillasdk}/idl"/>
 
 	<target name="_init"
 	  description="Initialises all propertys to their correct values.">
@@ -103,7 +104,7 @@
 	<target name="_components" if="hascomponents" depends="_init"
 	  description="Compiles any idl files to xpt">
   
-		<apply executable="xpidl" dir="${basedir}/components" dest="${builddir}/components" failonerror="true">
+		<apply executable="${xpidl.bin}" dir="${basedir}/components" dest="${builddir}/components" failonerror="true">
 			<mapper type="glob" from="*.idl" to="*.xpt"/>
 			<fileset dir="${basedir}/components" includes="*.idl"/>
 			<arg line="-m typelib -w -v"/>
