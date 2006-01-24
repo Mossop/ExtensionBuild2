@@ -43,6 +43,8 @@
 
 <project name="ExtensionBuild" default="package" basedir="../">
 
+  <taskdef name="preprocess" classname="com.blueprintit.mossant.PreProcessTask"/>
+    
 	<property name="mozillasdk" value="${basedir}/../../gecko-sdk"/>
 
 	<property name="xpidl.bin" value="${mozillasdk}/bin/xpidl"/>
@@ -89,16 +91,16 @@
 	<target name="_preprocess" depends="_init"
 	  description="Preprocesses any necessary input files">
 	  
-		<copy todir="${builddir}" overwrite="true">
+		<preprocess destdir="${builddir}">
 			<fileset dir="${basedir}">
-				<include name="**/*.in"/>
+				<exclude name="build/**"/>                  <!-- Don't want the build scripts either -->
+				<exclude name="bin/**"/>                    <!-- Don't copy the build into itself -->
+
+			  <include name="**/*.js"/>
+				<include name="**/*.xul"/>
+				<include name="**/*.rdf"/>
 			</fileset>
-			<mapper type="glob" from="*.in" to="*"/>
-		  <filterset>
-				<filter token="id" value="${extension.guid}"/>
-				<filter token="version" value="${extension.fullversion}"/>
-	  	</filterset>
-		</copy>
+		</preprocess>
 	</target>
 	
 	<target name="_components" if="hascomponents" depends="_init"
@@ -118,16 +120,20 @@
 	  
 		<copy todir="${builddir}">
 			<fileset dir="${basedir}">
+ 				<exclude name=".externalToolBuilders/*"/>   <!-- Eclipse specific files -->
 				<exclude name="extension.properties"/>      <!-- Don't want the properties in the build -->
 				<exclude name="build/**"/>                  <!-- Don't want the build scripts either -->
 				<exclude name="bin/**"/>                    <!-- Don't copy the build into itself -->
-				<exclude name="**/*.in"/>                   <!-- The preprocessor will copy these across -->
-				<exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
+
 				<exclude name="*.xpi"/>                     <!-- Shouldn't package extensions within extensions -->
 				<exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
 				<exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
 				<exclude name=".*"/>                        <!-- No unix hidden files -->
- 				<exclude name=".externalToolBuilders/*"/>   <!-- Eclipse specific files -->
+			  <exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
+
+				<exclude name="**/*.js"/>                   <!-- The preprocessor will copy these across -->
+				<exclude name="**/*.xul"/>                  <!-- The preprocessor will copy these across -->
+				<exclude name="**/*.rdf"/>                  <!-- The preprocessor will copy these across -->
 			</fileset>
 		</copy>
 	</target>
