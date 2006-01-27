@@ -60,6 +60,7 @@
 	  <property file="${basedir}/extension.properties" prefix="extension"/>
 
 	  <!-- Set suitable defaults in case there was no settings -->
+	  <property name="srcdir" value="${basedir}/src"/>
 	  <property name="builddir" value="${basedir}/bin"/>
 		<property name="outputdir" value="${basedir}"/>
 	  
@@ -75,7 +76,7 @@
 
 	  <!-- Create the build directory and check if there are any components -->
 	  <mkdir dir="${builddir}"/>
-		<available property="hascomponents" file="${basedir}/components"/>
+		<available property="hascomponents" file="${srcdir}/components"/>
 	  
 	  <!-- Dump out properties so we know the state of a failed build -->
 	  <echoproperties/>
@@ -92,10 +93,7 @@
 	  description="Preprocesses any necessary input files">
 	  
 		<preprocess destdir="${builddir}" overwrite="true">
-			<fileset dir="${basedir}">
-				<exclude name="build/**"/>                  <!-- Don't want the build scripts either -->
-				<exclude name="bin/**"/>                    <!-- Don't copy the build into itself -->
-
+			<fileset dir="${srcdir}">
 			  <include name="**/*.js"/>
 				<include name="**/*.xul"/>
 				<include name="**/*.rdf"/>
@@ -106,9 +104,9 @@
 	<target name="_components" if="hascomponents" depends="_init"
 	  description="Compiles any idl files to xpt">
   
-		<apply executable="${xpidl.bin}" dir="${basedir}/components" dest="${builddir}/components" failonerror="true">
+		<apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
 			<mapper type="glob" from="*.idl" to="*.xpt"/>
-			<fileset dir="${basedir}/components" includes="*.idl"/>
+			<fileset dir="${srcdir}/components" includes="*.idl"/>
 			<arg line="-m typelib -w -v"/>
 			<arg line="${xpidl.includes} -e"/>
 			<targetfile/>
@@ -119,13 +117,10 @@
 	  description="Copies all standard files to the build directory">
 	  
 		<copy todir="${builddir}">
-			<fileset dir="${basedir}">
+			<fileset dir="${srcdir}">
  				<exclude name=".externalToolBuilders/*"/>   <!-- Eclipse specific files -->
 				<exclude name="extension.properties"/>      <!-- Don't want the properties in the build -->
-				<exclude name="build/**"/>                  <!-- Don't want the build scripts either -->
-				<exclude name="bin/**"/>                    <!-- Don't copy the build into itself -->
 
-				<exclude name="*.xpi"/>                     <!-- Shouldn't package extensions within extensions -->
 				<exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
 				<exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
 				<exclude name=".*"/>                        <!-- No unix hidden files -->
