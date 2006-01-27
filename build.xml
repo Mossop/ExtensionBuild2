@@ -91,7 +91,7 @@
 	<target name="_preprocess" depends="_init"
 	  description="Preprocesses any necessary input files">
 	  
-		<preprocess destdir="${builddir}">
+		<preprocess destdir="${builddir}" overwrite="true">
 			<fileset dir="${basedir}">
 				<exclude name="build/**"/>                  <!-- Don't want the build scripts either -->
 				<exclude name="bin/**"/>                    <!-- Don't copy the build into itself -->
