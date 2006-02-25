@@ -94,8 +94,12 @@
 	  
 		<preprocess destdir="${builddir}" overwrite="true">
 			<fileset dir="${srcdir}">
+				<exclude name="**/*.inc"/>
+				<exclude name="**/*.inc.*"/>
+
 			  <include name="**/*.js"/>
 				<include name="**/*.xul"/>
+				<include name="**/*.xml"/>
 				<include name="**/*.rdf"/>
 			</fileset>
 		</preprocess>
@@ -118,16 +122,17 @@
 	  
 		<copy todir="${builddir}">
 			<fileset dir="${srcdir}">
- 				<exclude name=".externalToolBuilders/*"/>   <!-- Eclipse specific files -->
-				<exclude name="extension.properties"/>      <!-- Don't want the properties in the build -->
-
 				<exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
 				<exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
 				<exclude name=".*"/>                        <!-- No unix hidden files -->
 			  <exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
 
+				<exclude name="**/*.inc"/>                  <!-- Included files should be taken by the preprocessor -->
+				<exclude name="**/*.inc.*"/>                <!-- Included files should be taken by the preprocessor -->
+			  
 				<exclude name="**/*.js"/>                   <!-- The preprocessor will copy these across -->
 				<exclude name="**/*.xul"/>                  <!-- The preprocessor will copy these across -->
+				<exclude name="**/*.xml"/>                  <!-- The preprocessor will copy these across -->
 				<exclude name="**/*.rdf"/>                  <!-- The preprocessor will copy these across -->
 			</fileset>
 		</copy>
