@@ -74,6 +74,11 @@
 	  	<isset property="release"/>
 	  </condition>
 
+	  <!-- Define the chrome base url which changes if a jar file is in use or not -->
+	  <condition property="extension.chromebase" value="jar:chrome/${extension.chromejar}.jar!" else="file:chrome">
+	  	<isset property="extension.chromejar"/>
+	  </condition>
+
 	  <!-- Create the build directory and check if there are any components -->
 	  <mkdir dir="${builddir}"/>
 		<available property="hascomponents" file="${srcdir}/components"/>
@@ -101,6 +106,7 @@
 				<include name="**/*.xul"/>
 				<include name="**/*.xml"/>
 				<include name="**/*.rdf"/>
+				<include name="**/*.manifest"/>
 			</fileset>
 		</preprocess>
 	</target>
@@ -134,6 +140,7 @@
 				<exclude name="**/*.xul"/>                  <!-- The preprocessor will copy these across -->
 				<exclude name="**/*.xml"/>                  <!-- The preprocessor will copy these across -->
 				<exclude name="**/*.rdf"/>                  <!-- The preprocessor will copy these across -->
+				<exclude name="**/*.manifest"/>             <!-- The preprocessor will copy these across -->
 			</fileset>
 		</copy>
 	</target>
