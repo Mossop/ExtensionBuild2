@@ -47,6 +47,7 @@
     
 	<property name="mozillasdk" value="${basedir}/../../gecko-sdk"/>
 
+	<property name="xptlink.bin" value="${mozillasdk}/bin/xpt_link"/>
 	<property name="xpidl.bin" value="${mozillasdk}/bin/xpidl"/>
 	<property name="xpidl.includes" value="-I ${mozillasdk}/idl"/>
 
@@ -87,42 +88,6 @@
 	  <echoproperties/>
 	</target>
 	
-	<target name="clean" depends="_init"
-	  description="Cleans the build directory and output package">
-
-	  <delete dir="${builddir}"/>
-		<delete file="${outputdir}/${packagename}.xpi"/>
-	</target>
-	
-	<target name="_preprocess" depends="_init"
-	  description="Preprocesses any necessary input files">
-	  
-		<preprocess destdir="${builddir}" overwrite="true">
-			<fileset dir="${srcdir}">
-				<exclude name="**/*.inc"/>
-				<exclude name="**/*.inc.*"/>
-
-			  <include name="**/*.js"/>
-				<include name="**/*.xul"/>
-				<include name="**/*.xml"/>
-				<include name="**/*.rdf"/>
-				<include name="**/*.manifest"/>
-			</fileset>
-		</preprocess>
-	</target>
-	
-	<target name="_components" if="hascomponents" depends="_init"
-	  description="Compiles any idl files to xpt">
-  
-		<apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
-			<mapper type="glob" from="*.idl" to="*.xpt"/>
-			<fileset dir="${srcdir}/components" includes="*.idl"/>
-			<arg line="-m typelib -w -v"/>
-			<arg line="${xpidl.includes} -e"/>
-			<targetfile/>
-		</apply>
-	</target>
-	
 	<target name="_copy" depends="_init"
 	  description="Copies all standard files to the build directory">
 	  
@@ -145,7 +110,24 @@
 		</copy>
 	</target>
 	
-  <target name="_buildjar" depends="_init,_copy,_preprocess" if="extension.chromejar"
+	<target name="_preprocess" depends="_init"
+	  description="Preprocesses any necessary input files">
+	  
+		<preprocess destdir="${builddir}" overwrite="true">
+			<fileset dir="${srcdir}">
+				<exclude name="**/*.inc"/>
+				<exclude name="**/*.inc.*"/>
+
+			  <include name="**/*.js"/>
+				<include name="**/*.xul"/>
+				<include name="**/*.xml"/>
+				<include name="**/*.rdf"/>
+				<include name="**/*.manifest"/>
+			</fileset>
+		</preprocess>
+	</target>
+	
+  <target name="_buildjar" depends="_init,_prepareChrome" if="extension.chromejar"
     description="Compiles the chrome into a single jar file.">
     
     <!-- Assume this dir is clean so zip up everything except the jar file itself. -->
@@ -159,15 +141,54 @@
     </delete>
   </target>
   
-	<target name="compile" depends="_init,_copy,_preprocess,_buildjar,_components"
+	<target name="_compileXPT" if="hascomponents" depends="_init"
+	  description="Compiles any idl files to xpt">
+  
+		<apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
+			<mapper type="glob" from="*.idl" to="*.xpt"/>
+			<fileset dir="${srcdir}/components" includes="*.idl"/>
+			<arg line="-m typelib -w -v"/>
+			<arg line="${xpidl.includes} -e"/>
+			<targetfile/>
+		</apply>
+	</target>
+	
+	<target name="_combineXPT" if="extension.globalxpt" depends="_init,_compileXPT"
+	  description="Combines all xpt files into a single one.">
+  
+		<apply executable="${xptlink.bin}" failonerror="true" parallel="true">
+			<fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
+			<arg line="${builddir}/components/${extension.globalxpt}.xpt"/>
+		</apply>
+
+    <delete>
+      <fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
+    </delete>
+	</target>
+	
+  <target name="_prepareChrome" depends="_copy,_preprocess"
+	  description="Dummy task that builds the chrome files.">
+  </target>
+  
+  <target name="_prepareComponents" depends="_compileXPT,_combineXPT"
+	  description="Dummy task that compiles any necessary components.">
+  </target>
+  
+	<target name="compile" depends="_init,_prepareChrome,_buildjar,_prepareComponents"
 	  description="Dummy task that performs everything necessary to make the build directory a working extension.">
-	  
 	</target>
 	
 	<target name="package" depends="_init,compile"
 	  description="Packages the extension into an xpi file.">
-	  
+
 		<zip basedir="${builddir}" destfile="${outputdir}/${packagename}.xpi"/>
+	</target>
+	
+	<target name="clean" depends="_init"
+	  description="Cleans the build directory and output package">
+
+	  <delete dir="${builddir}"/>
+		<delete file="${outputdir}/${packagename}.xpi"/>
 	</target>
 	
 	<target name="clean-package" depends="clean,package"
