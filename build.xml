@@ -45,95 +45,95 @@
 
   <taskdef name="preprocess" classname="com.blueprintit.mossant.PreProcessTask"/>
     
-	<property name="mozillasdk" value="${basedir}/../../gecko-sdk"/>
+  <property name="mozillasdk" value="${basedir}/../../gecko-sdk"/>
 
-	<property name="xptlink.bin" value="${mozillasdk}/bin/xpt_link"/>
-	<property name="xpidl.bin" value="${mozillasdk}/bin/xpidl"/>
-	<property name="xpidl.includes" value="-I ${mozillasdk}/idl"/>
+  <property name="xptlink.bin" value="${mozillasdk}/bin/xpt_link"/>
+  <property name="xpidl.bin" value="${mozillasdk}/bin/xpidl"/>
+  <property name="xpidl.includes" value="-I ${mozillasdk}/idl"/>
 
-	<target name="_init"
-	  description="Initialises all propertys to their correct values.">
-		
-	  <!-- Load the basic properties -->
-	  <property file="${properties}"/>
-		
-	  <!-- Load the extension properties -->
-	  <property file="${basedir}/extension.properties" prefix="extension"/>
+  <target name="_init"
+    description="Initialises all propertys to their correct values.">
+    
+    <!-- Load the basic properties -->
+    <property file="${properties}"/>
+    
+    <!-- Load the extension properties -->
+    <property file="${basedir}/extension.properties" prefix="extension"/>
 
-	  <!-- Set suitable defaults in case there was no settings -->
-	  <property name="srcdir" value="${basedir}/src"/>
-	  <property name="builddir" value="${basedir}/bin"/>
-		<property name="outputdir" value="${basedir}"/>
-	  
-	  <!-- If a revision is specified then add that to the extension version -->
-	  <condition property="extension.fullversion" value="${extension.version}.${extension.revision}" else="${extension.version}">
-			<isset property="extension.revision"/>
-	  </condition>
-	  
-	  <!-- Release builds have their version in their package name -->
-	  <condition property="packagename" value="${extension.name}-${extension.version}" else="${extension.name}">
-	  	<isset property="release"/>
-	  </condition>
+    <!-- Set suitable defaults in case there was no settings -->
+    <property name="srcdir" value="${basedir}/src"/>
+    <property name="builddir" value="${basedir}/bin"/>
+    <property name="outputdir" value="${basedir}"/>
+    
+    <!-- If a revision is specified then add that to the extension version -->
+    <condition property="extension.fullversion" value="${extension.version}.${extension.revision}" else="${extension.version}">
+      <isset property="extension.revision"/>
+    </condition>
+    
+    <!-- Release builds have their version in their package name -->
+    <condition property="packagename" value="${extension.name}-${extension.version}" else="${extension.name}">
+      <isset property="release"/>
+    </condition>
 
-	  <!-- Define the chrome base url which changes if a jar file is in use or not -->
-	  <condition property="extension.chromebase" value="jar:chrome/${extension.chromejar}.jar!" else="file:chrome">
-	  	<isset property="extension.chromejar"/>
-	  </condition>
+    <!-- Define the chrome base url which changes if a jar file is in use or not -->
+    <condition property="extension.chromebase" value="jar:chrome/${extension.chromejar}.jar!" else="file:chrome">
+      <isset property="extension.chromejar"/>
+    </condition>
 
-	  <!-- Create the build directory and check if there are any components -->
-	  <mkdir dir="${builddir}"/>
-		<available property="hascomponents" file="${srcdir}/components"/>
-	  
-	  <!-- Dump out properties so we know the state of a failed build -->
-	  <echoproperties/>
-	</target>
-	
-	<target name="_copy" depends="_init"
-	  description="Copies all standard files to the build directory">
-	  
-		<copy todir="${builddir}">
-			<fileset dir="${srcdir}">
-				<exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
-				<exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
-				<exclude name=".*"/>                        <!-- No unix hidden files -->
-			  <exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
+    <!-- Create the build directory and check if there are any components -->
+    <mkdir dir="${builddir}"/>
+    <available property="hascomponents" file="${srcdir}/components"/>
+    
+    <!-- Dump out properties so we know the state of a failed build -->
+    <echoproperties/>
+  </target>
+  
+  <target name="_copy" depends="_init"
+    description="Copies all standard files to the build directory">
+    
+    <copy todir="${builddir}">
+      <fileset dir="${srcdir}">
+        <exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
+        <exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
+        <exclude name=".*"/>                        <!-- No unix hidden files -->
+        <exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
 
-				<exclude name="**/*.inc"/>                  <!-- Included files should be taken by the preprocessor -->
-				<exclude name="**/*.inc.*"/>                <!-- Included files should be taken by the preprocessor -->
-			  
-				<exclude name="**/*.js"/>                   <!-- The preprocessor will copy these across -->
-				<exclude name="**/*.xul"/>                  <!-- The preprocessor will copy these across -->
-				<exclude name="**/*.xml"/>                  <!-- The preprocessor will copy these across -->
-				<exclude name="**/*.rdf"/>                  <!-- The preprocessor will copy these across -->
-				<exclude name="**/*.manifest"/>             <!-- The preprocessor will copy these across -->
-			</fileset>
-		</copy>
-	</target>
-	
-	<target name="_preprocess" depends="_init"
-	  description="Preprocesses any necessary input files">
-	  
-		<preprocess destdir="${builddir}" overwrite="true">
-			<fileset dir="${srcdir}">
-				<exclude name="**/*.inc"/>
-				<exclude name="**/*.inc.*"/>
+        <exclude name="**/*.inc"/>                  <!-- Included files should be taken by the preprocessor -->
+        <exclude name="**/*.inc.*"/>                <!-- Included files should be taken by the preprocessor -->
+        
+        <exclude name="**/*.js"/>                   <!-- The preprocessor will copy these across -->
+        <exclude name="**/*.xul"/>                  <!-- The preprocessor will copy these across -->
+        <exclude name="**/*.xml"/>                  <!-- The preprocessor will copy these across -->
+        <exclude name="**/*.rdf"/>                  <!-- The preprocessor will copy these across -->
+        <exclude name="**/*.manifest"/>             <!-- The preprocessor will copy these across -->
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="_preprocess" depends="_init"
+    description="Preprocesses any necessary input files">
+    
+    <preprocess destdir="${builddir}" overwrite="true">
+      <fileset dir="${srcdir}">
+        <exclude name="**/*.inc"/>
+        <exclude name="**/*.inc.*"/>
 
-			  <include name="**/*.js"/>
-				<include name="**/*.xul"/>
-				<include name="**/*.xml"/>
-				<include name="**/*.rdf"/>
-				<include name="**/*.manifest"/>
-			</fileset>
-		</preprocess>
-	</target>
-	
+        <include name="**/*.js"/>
+        <include name="**/*.xul"/>
+        <include name="**/*.xml"/>
+        <include name="**/*.rdf"/>
+        <include name="**/*.manifest"/>
+      </fileset>
+    </preprocess>
+  </target>
+  
   <target name="_buildjar" depends="_init,_prepareChrome" if="extension.chromejar"
     description="Compiles the chrome into a single jar file.">
     
     <!-- Assume this dir is clean so zip up everything except the jar file itself. -->
-		<zip basedir="${builddir}/chrome" destfile="${builddir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
+    <zip basedir="${builddir}/chrome" destfile="${builddir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
 
- 		<!-- Delete everything except the jar file -->
+    <!-- Delete everything except the jar file -->
     <delete includeemptydirs="true">
       <fileset dir="${builddir}/chrome">
         <exclude name="${extension.chromejar}.jar"/>
@@ -141,58 +141,58 @@
     </delete>
   </target>
   
-	<target name="_compileXPT" if="hascomponents" depends="_init"
-	  description="Compiles any idl files to xpt">
+  <target name="_compileXPT" if="hascomponents" depends="_init"
+    description="Compiles any idl files to xpt">
   
-		<apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
-			<mapper type="glob" from="*.idl" to="*.xpt"/>
-			<fileset dir="${srcdir}/components" includes="*.idl"/>
-			<arg line="-m typelib -w -v"/>
-			<arg line="${xpidl.includes} -e"/>
-			<targetfile/>
-		</apply>
-	</target>
-	
-	<target name="_combineXPT" if="extension.globalxpt" depends="_init,_compileXPT"
-	  description="Combines all xpt files into a single one.">
+    <apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
+      <mapper type="glob" from="*.idl" to="*.xpt"/>
+      <fileset dir="${srcdir}/components" includes="*.idl"/>
+      <arg line="-m typelib -w -v"/>
+      <arg line="${xpidl.includes} -e"/>
+      <targetfile/>
+    </apply>
+  </target>
   
-		<apply executable="${xptlink.bin}" failonerror="true" parallel="true">
-			<fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
-			<arg line="${builddir}/components/${extension.globalxpt}.xpt"/>
-		</apply>
+  <target name="_combineXPT" if="extension.globalxpt" depends="_init,_compileXPT"
+    description="Combines all xpt files into a single one.">
+  
+    <apply executable="${xptlink.bin}" failonerror="true" parallel="true">
+      <fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
+      <arg line="${builddir}/components/${extension.globalxpt}.xpt"/>
+    </apply>
 
     <delete>
       <fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
     </delete>
-	</target>
-	
+  </target>
+  
   <target name="_prepareChrome" depends="_copy,_preprocess"
-	  description="Dummy task that builds the chrome files.">
+    description="Dummy task that builds the chrome files.">
   </target>
   
   <target name="_prepareComponents" depends="_compileXPT,_combineXPT"
-	  description="Dummy task that compiles any necessary components.">
+    description="Dummy task that compiles any necessary components.">
   </target>
   
-	<target name="compile" depends="_init,_prepareChrome,_buildjar,_prepareComponents"
-	  description="Dummy task that performs everything necessary to make the build directory a working extension.">
-	</target>
-	
-	<target name="package" depends="_init,compile"
-	  description="Packages the extension into an xpi file.">
+  <target name="compile" depends="_init,_prepareChrome,_buildjar,_prepareComponents"
+    description="Dummy task that performs everything necessary to make the build directory a working extension.">
+  </target>
+  
+  <target name="package" depends="_init,compile"
+    description="Packages the extension into an xpi file.">
 
-		<zip basedir="${builddir}" destfile="${outputdir}/${packagename}.xpi"/>
-	</target>
-	
-	<target name="clean" depends="_init"
-	  description="Cleans the build directory and output package">
+    <zip basedir="${builddir}" destfile="${outputdir}/${packagename}.xpi"/>
+  </target>
+  
+  <target name="clean" depends="_init"
+    description="Cleans the build directory and output package">
 
-	  <delete dir="${builddir}"/>
-		<delete file="${outputdir}/${packagename}.xpi"/>
-	</target>
-	
-	<target name="clean-package" depends="clean,package"
-	  description="A single target that will clean then build the package. Stops running the init target twice.">
-	</target>
-	
+    <delete dir="${builddir}"/>
+    <delete file="${outputdir}/${packagename}.xpi"/>
+  </target>
+  
+  <target name="clean-package" depends="clean,package"
+    description="A single target that will clean then build the package. Stops running the init target twice.">
+  </target>
+  
 </project>
