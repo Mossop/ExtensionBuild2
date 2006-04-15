@@ -138,7 +138,7 @@
   
   <!-- Either combine all xpt's into one or copy them all across -->
   
-  <target name="_combineXPT" if="extension.globalxpt" depends="_init,_compileXPT"
+  <target name="_combineXPT" depends="_init,_compileXPT"
     description="Combines all xpt files into a single one.">
   
   	<mkdir dir="${bindir}/components"/>
@@ -184,15 +184,15 @@
     description="Dummy task that builds the chrome files.">
   </target>
   
-  <target name="_prepareComponents" depends="_compileXPT,_combineXPT"
-    description="Dummy task that compiles any necessary components.">
-  </target>
-  
-  <target name="_prepare" depends="_init,_prepareChrome,_prepareComponents"
+  <target name="_prepare" depends="_init,_prepareChrome,_compileXPT"
     description="Dummy task that uses the build dir to prepare all the files.">
   </target>
   
-  <target name="_complete" depends="_init,_buildJAR,_copyChrome,_combineXPT,_copyXPT"
+  <target name="_completeComponents" if="hascomponents" depends="_combineXPT,_copyXPT"
+    description="Dummy task that compiles any necessary components.">
+  </target>
+  
+  <target name="_complete" depends="_init,_buildJAR,_copyChrome,_completeComponents"
     description="Dummy task that moves from the build dir to the bindir.">
 
     <copy todir="${bindir}">
