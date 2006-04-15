@@ -63,8 +63,8 @@
     <!-- Set suitable defaults in case there was no settings -->
     <property name="srcdir" value="${basedir}/src"/>
     <property name="builddir" value="${basedir}/prebuild"/>
-    <property name="outputdir" value="${basedir}/bin"/>
-    <property name="packagedir" value="${basedir}"/>
+    <property name="bindir" value="${basedir}/bin"/>
+    <property name="outputdir" value="${basedir}"/>
     
     <!-- If a revision is specified then add that to the extension version -->
     <condition property="extension.fullversion" value="${extension.version}.${extension.revision}" else="${extension.version}">
@@ -125,7 +125,7 @@
   <target name="_compileXPT" if="hascomponents" depends="_init"
     description="Compiles any idl files to xpt">
   
-  	<mkdir dir="${outputdir}/components"/>
+  	<mkdir dir="${bindir}/components"/>
   	
     <apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
       <mapper type="glob" from="*.idl" to="*.xpt"/>
@@ -141,18 +141,18 @@
   <target name="_combineXPT" if="extension.globalxpt" depends="_init,_compileXPT"
     description="Combines all xpt files into a single one.">
   
-  	<mkdir dir="${outputdir}/components"/>
+  	<mkdir dir="${bindir}/components"/>
   	
     <apply executable="${xptlink.bin}" failonerror="true" parallel="true">
       <fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
-      <arg line="${outputdir}/components/${extension.globalxpt}.xpt"/>
+      <arg line="${bindir}/components/${extension.globalxpt}.xpt"/>
     </apply>
   </target>
   
   <target name="_copyXPT" unless="extension.globalxpt" depends="_init,_compileXPT"
     description="Copies all XPT files to the output dir.">
   
-    <copy todir="${outputdir}/components">
+    <copy todir="${bindir}/components">
       <fileset dir="${builddir}/components" includes="*.xpt"/>
     </copy>
   </target>
@@ -162,18 +162,18 @@
   <target name="_buildJAR" depends="_init,_prepareChrome" if="extension.chromejar"
     description="Compiles the chrome into a single jar file.">
     
-  	<mkdir dir="${outputdir}/chrome"/>
+  	<mkdir dir="${bindir}/chrome"/>
   	
     <!-- Assume this dir is clean so zip up everything except the jar file itself. -->
-    <zip basedir="${builddir}/chrome" destfile="${outputdir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
+    <zip basedir="${builddir}/chrome" destfile="${bindir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
   </target>
   
   <target name="_copyChrome" depends="_init,_prepareChrome" unless="extension.chromejar"
-    description="Copies the chrome into the outputdir.">
+    description="Copies the chrome into the bindir.">
     
-    <mkdir dir="${outputdir}/chrome"/>
+    <mkdir dir="${bindir}/chrome"/>
   	
-    <copy todir="${outputdir}/chrome">
+    <copy todir="${bindir}/chrome">
       <fileset dir="${builddir}/chrome"/>
     </copy>
   </target>
@@ -193,9 +193,9 @@
   </target>
   
   <target name="_complete" depends="_init,_buildJAR,_copyChrome,_combineXPT,_copyXPT"
-    description="Dummy task that moves from the build dir to the outputdir.">
+    description="Dummy task that moves from the build dir to the bindir.">
 
-    <copy todir="${outputdir}">
+    <copy todir="${bindir}">
       <fileset dir="${builddir}">
       	<exclude name="components/*.xpt"/>
       	<exclude name="chrome/**/*"/>
@@ -210,15 +210,15 @@
   <target name="package" depends="_init,compile"
     description="Packages the extension into an xpi file.">
 
-    <zip basedir="${outputdir}" destfile="${packagedir}/${packagename}.xpi"/>
+    <zip basedir="${bindir}" destfile="${outputdir}/${packagename}.xpi"/>
   </target>
   
   <target name="clean" depends="_init"
     description="Cleans the build directory and output package">
 
     <delete dir="${builddir}"/>
-    <delete dir="${outputdir}"/>
-    <delete file="${packagedir}/${packagename}.xpi"/>
+    <delete dir="${bindir}"/>
+    <delete file="${outputdir}/${packagename}.xpi"/>
   </target>
   
   <target name="clean-package" depends="clean,package"
