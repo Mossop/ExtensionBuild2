@@ -89,7 +89,7 @@
     <echoproperties/>
   </target>
   
-  <target name="_copy" depends="_init"
+  <target name="_copy"
     description="Copies all standard files to the build directory">
     
     <copy todir="${builddir}">
@@ -105,7 +105,7 @@
     </copy>
   </target>
   
-  <target name="_preprocess" depends="_init"
+  <target name="_preprocess"
     description="Preprocesses any necessary input files">
     
     <preprocess destdir="${builddir}" overwrite="true">
@@ -122,7 +122,7 @@
     </preprocess>
   </target>
   
-  <target name="_compileXPT" if="hascomponents" depends="_init"
+  <target name="_compileXPT" if="hascomponents"
     description="Compiles any idl files to xpt">
   
   	<mkdir dir="${bindir}/components"/>
@@ -138,7 +138,7 @@
   
   <!-- Either combine all xpt's into one or copy them all across -->
   
-  <target name="_combineXPT" depends="_init,_compileXPT"
+  <target name="_combineXPT" if="extension.globalxpt"
     description="Combines all xpt files into a single one.">
   
   	<mkdir dir="${bindir}/components"/>
@@ -149,7 +149,7 @@
     </apply>
   </target>
   
-  <target name="_copyXPT" unless="extension.globalxpt" depends="_init,_compileXPT"
+  <target name="_copyXPT" unless="extension.globalxpt"
     description="Copies all XPT files to the output dir.">
   
     <copy todir="${bindir}/components">
@@ -159,7 +159,7 @@
   
   <!-- These either create a jar from the chrome, or copy straight it across to the output -->
   
-  <target name="_buildJAR" depends="_init,_prepareChrome" if="extension.chromejar"
+  <target name="_buildJAR" if="extension.chromejar"
     description="Compiles the chrome into a single jar file.">
     
   	<mkdir dir="${bindir}/chrome"/>
@@ -168,7 +168,7 @@
     <zip basedir="${builddir}/chrome" destfile="${bindir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
   </target>
   
-  <target name="_copyChrome" depends="_init,_prepareChrome" unless="extension.chromejar"
+  <target name="_copyChrome" unless="extension.chromejar"
     description="Copies the chrome into the bindir.">
     
     <mkdir dir="${bindir}/chrome"/>
@@ -180,20 +180,25 @@
   
   <!-- Dummy targets that perform the work -->
   
-  <target name="_prepareChrome" depends="_preprocess,_copy"
-    description="Dummy task that builds the chrome files.">
-  </target>
-  
-  <target name="_prepare" depends="_init,_prepareChrome,_compileXPT"
+  <target name="_prepare"
     description="Dummy task that uses the build dir to prepare all the files.">
+    <antcall target="_preprocess"/>
+    <antcall target="_copy"/>
+    <antcall target="_compileXPT"/>
   </target>
   
-  <target name="_completeComponents" if="hascomponents" depends="_combineXPT,_copyXPT"
+  <target name="_completeComponents" if="hascomponents"
     description="Dummy task that compiles any necessary components.">
+    <antcall target="_combineXPT"/>
+    <antcall target="_copyXPT"/>
   </target>
   
-  <target name="_complete" depends="_init,_buildJAR,_copyChrome,_completeComponents"
+  <target name="_complete"
     description="Dummy task that moves from the build dir to the bindir.">
+
+    <antcall target="_buildJAR"/>
+    <antcall target="_copyChrome"/>
+    <antcall target="_completeComponents"/>
 
     <copy todir="${bindir}">
       <fileset dir="${builddir}">
@@ -203,8 +208,11 @@
     </copy>
   </target>
   
-  <target name="compile" depends="_init,_prepare,_complete"
+  <target name="compile" depends="_init"
     description="Dummy task that performs everything necessary to make the build directory a working extension.">
+
+    <antcall target="_prepare"/>
+    <antcall target="_complete"/>
   </target>
   
   <target name="package" depends="_init,compile"
@@ -221,7 +229,7 @@
     <delete file="${outputdir}/${packagename}.xpi"/>
   </target>
   
-  <target name="clean-package" depends="clean,package"
+  <target name="clean-package" depends="_init,clean,package"
     description="A single target that will clean then build the package. Stops running the init target twice.">
   </target>
   
