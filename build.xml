@@ -93,11 +93,12 @@
     description="Copies all standard files to the build directory">
     
     <copy todir="${builddir}">
-      <fileset dir="${srcdir}">
+      <fileset dir="${srcdir}" excludesfile="${builddir}/.excludes">
         <exclude name="**/*.pspimage"/>             <!-- These are likely to be high quality images -->
         <exclude name="**/Thumbs.db"/>              <!-- Don't want windows files -->
         <exclude name=".*"/>                        <!-- No unix hidden files -->
         <exclude name="components/*.idl"/>          <!-- These are headers to be compiled by xpidl -->
+        <exclude name=".excludes"/>
 
         <exclude name="**/*.inc"/>                  <!-- Included files should be taken by the preprocessor -->
         <exclude name="**/*.inc.*"/>                <!-- Included files should be taken by the preprocessor -->
@@ -109,9 +110,10 @@
     description="Preprocesses any necessary input files">
     
     <preprocess destdir="${builddir}" overwrite="true">
-      <fileset dir="${srcdir}">
+      <fileset dir="${srcdir}" excludesfile="${builddir}/.excludes">
         <exclude name="**/*.inc"/>
         <exclude name="**/*.inc.*"/>
+        <exclude name=".excludes"/>
 
         <include name="**/*.js"/>
         <include name="**/*.xul"/>
@@ -165,7 +167,9 @@
   	<mkdir dir="${bindir}/chrome"/>
   	
     <!-- Assume this dir is clean so zip up everything except the jar file itself. -->
-    <zip basedir="${builddir}/chrome" destfile="${bindir}/chrome/${extension.chromejar}.jar" compress="false" excludes="${extension.chromejar}.jar"/>
+    <zip basedir="${builddir}/chrome" destfile="${bindir}/chrome/${extension.chromejar}.jar" compress="false">
+      <exclude name="${extension.chromejar}.jar"/>
+    </zip>
   </target>
   
   <target name="_copyChrome" unless="extension.chromejar"
@@ -182,6 +186,14 @@
   
   <target name="_prepare"
     description="Dummy task that uses the build dir to prepare all the files.">
+    
+    <preprocess destdir="${builddir}" overwrite="true">
+      <fileset dir="${srcdir}">
+        <include name=".excludes"/>
+      </fileset>
+    </preprocess>
+    <touch file="${builddir}/.excludes"/>
+    
     <antcall target="_preprocess"/>
     <antcall target="_copy"/>
     <antcall target="_compileXPT"/>
@@ -204,6 +216,7 @@
       <fileset dir="${builddir}">
       	<exclude name="components/*.xpt"/>
       	<exclude name="chrome/**/*"/>
+        <exclude name=".excludes"/>
       </fileset>
     </copy>
   </target>
