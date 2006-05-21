@@ -187,6 +187,7 @@
   <target name="_prepare"
     description="Dummy task that uses the build dir to prepare all the files.">
     
+    <mkdir dir="${builddir}"/>
     <preprocess destdir="${builddir}" overwrite="true">
       <fileset dir="${srcdir}">
         <include name=".excludes"/>
