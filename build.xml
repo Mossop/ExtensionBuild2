@@ -232,7 +232,9 @@
   <target name="package" depends="_init,compile"
     description="Packages the extension into an xpi file.">
 
-    <zip basedir="${bindir}" destfile="${outputdir}/${packagename}.xpi"/>
+  	<loadfile property="comment" srcFile="${bindir}/LICENSE" failonerror="false"/>
+  	<property name="comment" value=""/>
+    <zip basedir="${bindir}" destfile="${outputdir}/${packagename}.xpi" comment="${comment}"/>
   </target>
   
   <target name="clean" depends="_init"
