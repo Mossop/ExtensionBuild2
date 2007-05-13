@@ -111,7 +111,6 @@
     
     <preprocess destdir="${builddir}" overwrite="true">
       <fileset dir="${srcdir}" excludesfile="${builddir}/.excludes">
-        <exclude name="**/*.inc"/>
         <exclude name="**/*.inc.*"/>
         <exclude name=".excludes"/>
 
@@ -122,7 +121,16 @@
         <include name="**/*.manifest"/>
       </fileset>
     </preprocess>
-  </target>
+
+    <preprocess destdir="${builddir}" overwrite="true" marker="##">
+      <fileset dir="${srcdir}" excludesfile="${builddir}/.excludes">
+        <exclude name="**/*.inc.*"/>
+        <exclude name=".excludes"/>
+
+        <include name="**/*.css"/>
+      </fileset>
+    </preprocess>
+</target>
   
   <target name="_compileXPT" if="hascomponents"
     description="Compiles any idl files to xpt">
