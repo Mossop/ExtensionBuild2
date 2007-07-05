@@ -118,6 +118,8 @@
         <include name="**/*.xul"/>
         <include name="**/*.xml"/>
         <include name="**/*.rdf"/>
+        <include name="**/*.dtd"/>
+        <include name="**/*.properties"/>
         <include name="**/*.manifest"/>
       </fileset>
     </preprocess>
@@ -135,8 +137,8 @@
   <target name="_compileXPT" if="hascomponents"
     description="Compiles any idl files to xpt">
   
-  	<mkdir dir="${bindir}/components"/>
-  	
+    <mkdir dir="${bindir}/components"/>
+    
     <apply executable="${xpidl.bin}" dir="${srcdir}/components" dest="${builddir}/components" failonerror="true">
       <mapper type="glob" from="*.idl" to="*.xpt"/>
       <fileset dir="${srcdir}/components" includes="*.idl"/>
@@ -151,8 +153,8 @@
   <target name="_combineXPT" if="extension.globalxpt"
     description="Combines all xpt files into a single one.">
   
-  	<mkdir dir="${bindir}/components"/>
-  	
+    <mkdir dir="${bindir}/components"/>
+    
     <apply executable="${xptlink.bin}" failonerror="true" parallel="true">
       <fileset dir="${builddir}/components" includes="*.xpt" excludes="${extension.globalxpt}.xpt"/>
       <arg line="${bindir}/components/${extension.globalxpt}.xpt"/>
@@ -172,8 +174,8 @@
   <target name="_buildJAR" if="extension.chromejar"
     description="Compiles the chrome into a single jar file.">
     
-  	<mkdir dir="${bindir}/chrome"/>
-  	
+    <mkdir dir="${bindir}/chrome"/>
+    
     <!-- Assume this dir is clean so zip up everything except the jar file itself. -->
     <zip basedir="${builddir}/chrome" destfile="${bindir}/chrome/${extension.chromejar}.jar" compress="false">
       <exclude name="${extension.chromejar}.jar"/>
@@ -184,7 +186,7 @@
     description="Copies the chrome into the bindir.">
     
     <mkdir dir="${bindir}/chrome"/>
-  	
+    
     <copy todir="${bindir}/chrome">
       <fileset dir="${builddir}/chrome"/>
     </copy>
@@ -223,8 +225,8 @@
 
     <copy todir="${bindir}">
       <fileset dir="${builddir}">
-      	<exclude name="components/*.xpt"/>
-      	<exclude name="chrome/**/*"/>
+        <exclude name="components/*.xpt"/>
+        <exclude name="chrome/**/*"/>
         <exclude name=".excludes"/>
       </fileset>
     </copy>
@@ -240,8 +242,8 @@
   <target name="package" depends="_init,compile"
     description="Packages the extension into an xpi file.">
 
-  	<loadfile property="comment" srcFile="${bindir}/LICENSE" failonerror="false"/>
-  	<property name="comment" value=""/>
+    <loadfile property="comment" srcFile="${bindir}/LICENSE" failonerror="false"/>
+    <property name="comment" value=""/>
     <zip basedir="${bindir}" destfile="${outputdir}/${packagename}.xpi" comment="${comment}"/>
   </target>
   
