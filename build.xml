@@ -85,8 +85,8 @@
     <mkdir dir="${builddir}"/>
     <available property="hascomponents" file="${srcdir}/components"/>
     
-    <!-- Dump out properties so we know the state of a failed build -->
-    <echoproperties/>
+    <!-- Dump out properties so we know the state of a failed build
+    <echoproperties/> -->
   </target>
   
   <target name="_copy"
